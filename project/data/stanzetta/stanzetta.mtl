@@ -1,0 +1,35 @@
+# Blender MTL File: 'stanzetta.blend'
+# Material Count: 3
+
+newmtl TB_Wall
+Ns 769.757931
+Ka 1.10000 1.000000 1.000000
+Kd 0.284459 0.099502 0.050712
+Ks 0.747978 0.747978 0.747978
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd ../immagini/Materiale.jpg
+
+newmtl Wall
+Ns 562.500000
+Ka 4.000000 3.000000 1.000000
+Kd 0.900000 0.900000 0.900000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd ../immagini/Muro.jpg
+
+newmtl Wood
+Ns 506.038191
+Ka 1.500000 1.000000 1.000000
+Kd 0.496926 0.342625 0.123623
+Ks 0.772727 0.772727 0.772727
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd ../immagini/Pavimento.jpg

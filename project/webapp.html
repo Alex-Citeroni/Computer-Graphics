@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+
+<html lang="it">
+
+<head>
+	<meta charset="UTF-8">
+
+	<title>Computer Graphics - Alex Citeroni</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- CSS -->
+	<link rel="stylesheet" type="text/css" href="styles/style.css">
+
+	<!-- Librerie -->
+	<script src="librerie/dat.gui.js" defer></script>
+	<script src="librerie/glm_utils.js" defer></script>
+	<script src="librerie/jquery-3.6.1.js" defer></script>
+	<script src="librerie/ui_components.js" defer></script>
+	<script src="librerie/m4.js" defer></script>
+	<script src="librerie/mesh_utils.js" defer></script>
+	<script src="librerie/webgl-utils.js" defer></script>
+
+	<!-- Classi -->
+	<script src="scene/scene.js" defer></script>
+	<script src="scene/camera.js" defer></script>
+	<script src="scene/animated_camera.js" defer></script>
+	<script src="scene/mesh_obj.js" defer></script>
+	<script src="utils.js" defer></script>
+	<script src="main.js" defer></script>
+
+	<!-- Vertex shader -->
+	<!-- 
+		Il vertex shader ha il compito di trasformare i vertici del modello 3D dalle coordinate del modello
+		allo spazio della scena, in modo che possano essere correttamente disegnati sullo schermo.
+		L'attributo "a_texcoord", "a_normal", "a_position" e "a_color" sono dichiarati e utilizzati come input per il vertex shader.
+		Questi attributi vengono forniti dalla CPU e contengono informazioni come la posizione e la normale di un vertice,
+		nonché la sua coordinata di texture e il suo colore.
+		Le uniformi "u_projection", "u_view" e "u_world" sono dichiarate
+		e utilizzate per calcolare la posizione del vertice nello spazio della scena.
+		Queste matrici contengono informazioni sulla proiezione,
+		sulla posizione della videocamera e sulla trasformazione del mondo del modello 3D.
+		La uniforme "u_viewWorldPosition" è utilizzata per calcolare la direzione della superficie del vertice
+		rispetto alla posizione della videocamera. 
+		La variabile "gl_Position" è assegnata il valore della posizione del vertice nello spazio della scena.
+		Questa variabile è utilizzata dal sistema di rendering per determinare dove disegnare il vertice sullo schermo.
+		Le variabili "v_normal", "v_surfaceToView" e "v_texcoord" e "v_color"
+		vengono passate come output al fragment shader per utilizzarle nella successiva elaborazione delle texture e dei colori
+	-->
+	<script id="base-vertex-shader" type="x-shader/x-vertex">
+			attribute vec2 a_texcoord;
+			attribute vec3 a_normal;
+			attribute vec4 a_position, a_color;
+
+			uniform mat4 u_projection, u_view, u_world;
+			uniform vec3 u_viewWorldPosition;
+
+			varying vec2 v_texcoord;
+			varying vec3 v_normal, v_surfaceToView;
+			varying vec4 v_color;
+
+			void main() {
+				vec4 world_position = u_world * a_position;  
+				gl_Position = u_projection * u_view * world_position;
+				v_surfaceToView = u_viewWorldPosition - world_position.xyz;
+				v_normal = mat3(u_world) * a_normal;
+				v_texcoord = a_texcoord;
+				v_color = a_color;
+			}
+	</script>
+
+	<!-- Fragment shader -->
+	<!-- 
+		Lo shader del frammento è utilizzato per determinare il colore di ogni singolo pixel sullo schermo.
+		Lo shader utilizza le proprietà del materiale, la posizione della luce
+		e l'illuminazione ambientale per calcolare l'effetto di illuminazione sulla base.
+		In particolare, utilizza la normale della superficie, la posizione della luce,
+		la mappa normale e la mappa diffuse per calcolare l'effetto di illuminazione sulla base e il colore finale del fragment.
+	-->
+	<script id="base-fragment-shader" type="x-shader/x-fragment">
+			precision highp float;
+
+			varying vec2 v_texcoord;
+			varying vec3 v_normal, v_surfaceToView;
+			varying vec4 v_color;
+
+			uniform sampler2D diffuseMap, normalMap;
+			uniform vec3 diffuse, ambient, emissive, specular;
+			uniform float shininess, opacity;
+
+			uniform vec3 u_lightDirection, u_lightColor, u_ambientLight;
+
+			void main () {
+				vec3 normal = normalize(v_normal) * ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+
+				vec3 surfaceToViewDirection = normalize(v_surfaceToView);
+    			vec3 halfVector = normalize(u_lightDirection + surfaceToViewDirection);
+
+				float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
+    			float specularLight = clamp(dot(normal, halfVector), 0.0, 1.0);
+
+    			vec4 diffuseMapColor = texture2D(diffuseMap, v_texcoord);
+    			vec3 effectiveDiffuse = diffuse * diffuseMapColor.rgb * u_lightColor.rgb * v_color.rgb;
+    			float effectiveOpacity = opacity * diffuseMapColor.a * v_color.a;
+
+				gl_FragColor = vec4(
+					emissive +
+					ambient * u_ambientLight +
+					effectiveDiffuse * fakeLight +
+					specular * pow(specularLight, shininess),
+					effectiveOpacity);
+			}
+	</script>
+
+	<!-- ============== SkyBox ================ -->
+
+	<!-- Vertex Shader -->
+	<!--
+		Utilizza la posizione del vertice per creare una posizione sullo schermo per il vertice
+		e passa la posizione originale del vertice al fragment shader come una variabile di uscita.
+	-->
+	<script id="skybox-vertex-shader" type="x-shader/x-vertex">
+			attribute vec4 a_position;
+			varying vec4 v_position;
+
+			void main() {
+				v_position = a_position;
+				gl_Position = vec4(a_position.xy, 1, 1);
+			}
+	</script>
+
+	<!-- Fragment Shader -->
+	<!--
+		Prende una texture cubica (u_skybox) e utilizza la libreria di texture di GLSL (textureCube)
+		per mappare la texture su un cubo.
+		Utilizza una matrice uniforme (u_viewDirectionProjectionInverse) per trasformare la posizione del vertice in un vettore di direzione.
+		Normalizza il vettore di direzione (t.xyz / t.w). Mappa la texture cubica sulla skybox.
+		Moltiplica il risultato per un colore di luce uniforme (u_lightColor) per illuminare la skybox.
+		Assegna il risultato a gl_FragColor, che è la variabile predefinita utilizzata per passare il colore del fragmento al sistema di rendering.
+		Il risultato finale è una skybox che segue la camera mentre si muove attorno alla scena.
+	-->
+	<script id="skybox-fragment-shader" type="x-shader/x-fragment">
+			precision mediump float;
+
+			uniform samplerCube u_skybox;
+			uniform mat4 u_viewDirectionProjectionInverse;
+			uniform vec3 u_lightColor;
+			varying vec4 v_position;
+			void main() {
+				vec4 t = u_viewDirectionProjectionInverse * v_position;
+				gl_FragColor = textureCube(u_skybox, normalize(t.xyz / t.w)) * vec4(u_lightColor,1);
+			}
+	</script>
+
+	<!-- Vertex Shader -->
+	<!--
+		Utilizza informazioni passate dalla CPU e matrici uniformi
+		per calcolare la posizione dei vertici sullo schermo e passare informazioni importanti
+		come le coordinate della texture, la normale orientata e il colore al frammento shader
+		per determinare il colore di ogni pixel sullo schermo.
+	-->
+	<script id="vertex-shader-3d" type="x-shader/x-vertex">
+			attribute vec2 a_texcoord;
+			attribute vec3 a_normal;
+			attribute vec4 a_position, a_color;
+
+			uniform mat4 u_projection, u_view, u_world, u_textureMatrix;
+
+			varying vec2 v_texcoord;
+			varying vec3 v_normal;
+			varying vec4 v_color, v_projectedTexcoord;
+
+			void main() {
+				gl_Position = u_projection * u_view * u_world * a_position;
+				v_texcoord = a_texcoord;
+				v_projectedTexcoord = u_textureMatrix * a_position;
+				v_normal = mat3(u_world) * a_normal;
+				v_color = a_color;
+			}
+	</script>
+
+	<!-- Fragment shader -->
+	<!--
+		Questo codice specificamente utilizza informazioni passate dallo shader del vertice, tra cui:
+		la posizione e la normale dei vertici, la texture coordinate, la texture proiettata e la direzione della luce.
+		Utilizza anche diverse proprietà del materiale come diffuseMap, diffuse, shininess e opacity.
+		Il codice utilizza queste informazioni per calcolare l'effetto della luce sulla texture e la trama del materiale.
+		Inoltre, utilizza un'immagine proiettata per calcolare l'effetto dell'ombra sull'oggetto.
+		Il risultato finale è un colore di ogni pixel.
+	-->
+	<script id="fragment-shader-3d" type="x-shader/x-fragment">
+			precision mediump float;
+
+			varying vec2 v_texcoord;
+			varying vec3 v_normal;
+			varying vec4 v_color, v_projectedTexcoord;
+
+			uniform vec4 u_colorMult;
+			uniform sampler2D u_texture, u_shadowMap, diffuseMap;
+			uniform float u_bias, shininess, opacity;
+			uniform vec3 u_lightDirection, diffuse;
+
+			void main() {
+				vec3 normal = normalize(v_normal);
+				float light = dot(normal, u_lightDirection);
+
+				vec3 projectedTexcoord = v_projectedTexcoord.xyz / v_projectedTexcoord.w;
+				float currentDepth = projectedTexcoord.z + u_bias;
+
+				bool inRange =
+				projectedTexcoord.x >= 0.0 &&
+				projectedTexcoord.x <= 1.0 &&
+				projectedTexcoord.y >= 0.0 &&
+				projectedTexcoord.y <= 1.0;
+
+				float shadow = texture2D(u_shadowMap, projectedTexcoord.xy).r;
+				shadow = (inRange && shadow <= currentDepth) ? 0.0 : 1.0;
+
+				vec4 diffuseMapColor = texture2D(diffuseMap, v_texcoord);
+    			vec3 effectiveDiffuse = diffuse * diffuseMapColor.rgb  * v_color.rgb;
+    			float effectiveOpacity = opacity * diffuseMapColor.a * v_color.a;
+
+				vec4 texColor = texture2D(u_texture, v_texcoord) * u_colorMult;
+
+				gl_FragColor = vec4(effectiveDiffuse.rgb * light * shadow, effectiveOpacity);
+			}
+	</script>
+
+	<!-- ============== Color for Shadow Mapping ================ -->
+
+	<!-- Vertex Shader -->
+	<!--
+		Utilizza tre matrici uniformi chiamate "u_projection", "u_view" e "u_world" per calcolare la posizione di ogni vertice.
+		La posizione di ogni vertice è specificata utilizzando un attributo chiamato "a_position".
+		La posizione di ogni vertice viene calcolata moltiplicando a_position per u_projection * u_view * u_world
+		e assegnandola alla variabile gl_Position.
+	-->
+	<script id="color-vertex-shader" type="x-shader/x-vertex">
+			attribute vec4 a_position;
+
+			uniform mat4 u_projection, u_view, u_world;
+
+			void main() {
+				gl_Position = u_projection * u_view * u_world * a_position;
+			}
+	</script>
+
+	<!-- Fragment shader -->
+	<!-- Imposta il colore di ogni pixel utilizzando una variabile uniforme chiamata "u_color" -->
+	<script id="color-fragment-shader" type="x-shader/x-fragment">
+			precision mediump float;
+
+			uniform vec4 u_color;
+			void main() {
+				gl_FragColor = u_color;
+			}
+	</script>
+</head>
+
+<body>
+
+	<!-- Canvas WebGL -->
+	<canvas id="canvas"></canvas>
+
+	<!-- Bottoni per la camera -->
+	<div class="camera">
+		<button class="btn" onmouseup="scene.switch_camera();">Cambia Camera</button>
+		<button class="btn" onmouseup="scene.camera.align();">Allinea Camera</button>
+	</div>
+
+	<!-- Controller 2D -->
+	<div class="controller">
+		<form class="select" name="pad">
+			<select aria-label="Scegli un'opzione" onkeydown="return false" name="controller">
+				<option value="camera" selected="selected">Camera</option>
+				<option value="oggetto">Oggetto</option>
+			</select>
+		</form>
+		<canvas id="canvas2d" class="pad"></canvas>
+	</div>
+
+	<div class="comandi">
+
+		<!-- Documentazione -->
+		<a href="/doc/relazione.html">➫ Vai alla documentazione</a>
+
+		<!-- Comandi da tastiera -->
+		<details class="keyboard" onkeydown="return false">
+			<summary class="title">Comandi tastiera</summary>
+			<br>
+			<b>W/S</b>: camera avanti/indietro <br>
+			<b>A/D</b>: camera sinistra/destra <br>
+			<b>Space/Shift</b>: camera sopra/sotto <br>
+			<b>1/3</b>: inclina in alto/basso <br>
+			<b>4/6</b>: panoramica a sinistra/destra <br>
+			<b>7/9</b>: camera ruota a sinistra/destra <br>
+			<b>Freccia Su/Giù</b>: sposta oggetto avanti/indietro <br>
+			<b>Freccia Sinistra/Destra</b>: sposta oggetto sinistra/destra <br>
+			<b>Q/E</b>: sposta oggetto in alto/basso <br>
+			<b>R</b>: allinea la camera
+		</details>
+
+		<!-- Selezione oggetto da spostare -->
+		<form name="MyForm">
+			<fieldset>
+				<legend class="title">Seleziona oggetto da spostare</legend>
+				<select aria-label="Scegli un'opzione" onkeydown="return false" name="oggetto"></select>
+			</fieldset>
+		</form>
+	</div>
+
+	<!-- Menù impostazioni luci, ombre e skybox -->
+	<div class="settings" id="gui"></div>
+
+	<!-- Menù per aggiungere o rimuovere oggetti -->
+	<div class="objects" id="mod"></div>
+
+</body>
+
+</html>

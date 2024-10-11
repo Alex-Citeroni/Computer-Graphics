@@ -1,114 +1,134 @@
-# Computer-Graphics
+# 📗 Progetto
 
-📗 Progetto
-Questo progetto è stato sviluppo come prova d'esame per il corso di Computer Graphics del Corso di Laurea Magistrale in Informatica (Curriculum B), presso l'Università di Bologna.
+Questo progetto è stato sviluppato come prova d'esame per il corso di Computer Graphics del Corso di Laurea Magistrale in Informatica (Curriculum B), presso l'Università di Bologna.
+
 All'interno di questa documentazione sono contenuti dettagli inerenti alle scelte di sviluppo.
-L'obbiettivo del progetto è sviluppare una “3D-WebApp” usando WebGL (HTML5, CSS e contesto webgl), linguaggio JavaScript e OpenGL ES SL.
 
-🗿 Soggetto dell'applicazione
-Il progetto sviluppato prende ispirazione da giochi di arredamento e consiste in un'applicazione web che permette di visualizzare una scena 3D (inizialmente composta da una stanza vuota) e muoversi liberamente in essa tramite tastiera e mouse o controller.
-Tramite l'apposito menu è possibile aggiungere o rimuovere diversi oggetti e spostarli dove si proferisce attraverso la tastiera o il controller 2D posizionato in alto a destra.
-Inoltre è possibile modificare alcune impostazioni grafiche attraverso l'apposito menù in basso a sinistra.
-L'applicazione è stata testata su dispositivi mobili e in ambienete Windows e Linux.
+L'obiettivo del progetto è sviluppare una "3D-WebApp" usando WebGL (HTML5, CSS e contesto WebGL), linguaggio JavaScript e OpenGL ES SL.
 
-💼 File
+---
+
+## 🗿 Soggetto dell'applicazione
+
+Il progetto prende ispirazione da giochi di arredamento e consiste in un'applicazione web che permette di visualizzare una scena 3D (inizialmente composta da una stanza vuota) e muoversi liberamente in essa tramite tastiera e mouse o controller.
+
+Tramite l'apposito menu è possibile aggiungere o rimuovere diversi oggetti e spostarli dove si preferisce attraverso la tastiera o il controller 2D posizionato in alto a destra.
+
+È possibile anche modificare alcune impostazioni grafiche attraverso il menù in basso a sinistra. L'applicazione è stata testata su dispositivi mobili, Windows e Linux.
+
+---
+
+## 💼 File
+
 I file che compongono il progetto sono i seguenti:
 
-📁 data: cartella che contiene immagini, file mtl, file obj e file i blend degli oggetti.
-📁 librerie: cartella che contiene le librerie fornite dal professore (dat.gui.js, glm_utils.js, jquery_3.6.1.js,m4.js, mesh_utils.js, ui_components.js, webgl-utils.js).
-📁 scene:
-📄 scene.js: classe principale che si occupa di tutte le operazioni, dall'inizializzazione del canvas e delle mesh, al rendering.
-📄 camera.js: classe che gestisce la camera e i suoi movimenti.
-📄 animated_camera.js: classe che gestisce la camera che si muove automaticamente.
-📄 mesh_obj.js: classe per la gestione degli oggetti da disegnare.
-📁 styles: cartella che continene file css riguardanti gli stili dei file html.
-📄 main.js: main del programma.
-📄 relazione.html: questo file.
-📄 utils.js: file che contiene funzioni riguardanti gli oggetti, i menù e il controller (tastiera/mouse/touch).
-📄 webapp.html: il file principale che contiene l'app.
-💻 Interfaccia
-Interfaccia
+- **📁 data**: cartella che contiene immagini, file `.mtl`, file `.obj` e file `.blend` degli oggetti.
+- **📁 librerie**: cartella che contiene le librerie fornite dal professore (`dat.gui.js`, `glm_utils.js`, `jquery_3.6.1.js`, `m4.js`, `mesh_utils.js`, `ui_components.js`, `webgl-utils.js`).
+- **📁 scene**:
+  - **📄 scene.js**: classe principale che si occupa di tutte le operazioni, dall'inizializzazione del canvas e delle mesh, al rendering.
+  - **📄 camera.js**: classe che gestisce la camera e i suoi movimenti.
+  - **📄 animated_camera.js**: classe che gestisce la camera che si muove automaticamente.
+  - **📄 mesh_obj.js**: classe per la gestione degli oggetti da disegnare.
+- **📁 styles**: cartella che contiene file CSS riguardanti gli stili dei file HTML.
+- **📄 main.js**: main del programma.
+- **📄 relazione.html**: questo file.
+- **📄 utils.js**: file che contiene funzioni riguardanti gli oggetti, i menù e il controller (tastiera/mouse/touch).
+- **📄 webapp.html**: il file principale che contiene l'app.
+
+---
+
+## 💻 Interfaccia
+
+![Interfaccia](immagini/Interfaccia.jpeg)
+
 Quando avviamo l'applicazione possiamo notare che al centro dello schermo troviamo la scena contenente una stanza vuota.
-↘ In basso a destra possiamo trovare il menù (realizzato utilizzando la libreria dat.gui.js) dove possiamo piazzare gli oggetti e rimuoverli.
-↓ In basso al centro ci sono due pulsanti:
 
-Cambia Camera: permette di attivare la camera animata che gira intorno alla stanza
-Allinea Camera: allinea la camera sull'asse verticale e obliqua
-↙ In basso a sinistra troviamo il menù (realizzato utilizzando la libreria dat.gui.js) che su occupa di gestire:
-skybox: on/off e switch (è possibile alternare due skybox, tra quella iniziale e una completamente bianca).
-luce: posizione (ha effetto solo se se attiviamo il rendering avanzato), colore (modificano anche il colore della skybox e non ha effetto se è attivo il rendering tramite shadow map) e direzione.
-ombre: on/off rendering avanzato, fov, width, height, far, bias, on/off frustum.
-↖ In alto a sinistra troviamo: il link per raggiungere questo documento, i comandi della tastiera (visibili cliccando su 'Comandi tastiera') e la scelta dell'oggetto selezionato da spostare.
-documento: link per raggiungere questo documento.
-comandi tastiera: visibili cliccando su 'Comandi tastiera'.
-oggetto da spostare: da questa select è possibile scegliere l'oggetto da spostare.
-↗ In alto a destra troviamo il controller che si può utilizzare per muovere la camera e gli oggetti, in base a ciò che si è selezionato nella select.
-🎮 Comandi
-Attraverso la tastiera o tramite il controller presente in alto a destra è possibile spostarsi nella scena e spostare gli oggetti presenti nella scena (gli oggetti si possono spostare solo se sono già presenti nella scena).
-I comandi da tastiera sono i seguenti:
+- ↘ **In basso a destra**: troviamo il menù (realizzato utilizzando la libreria `dat.gui.js`) dove possiamo piazzare o rimuovere oggetti.
+- ↓ **In basso al centro**:
+  - **Cambia Camera**: permette di attivare la camera animata che gira intorno alla stanza.
+  - **Allinea Camera**: allinea la camera sull'asse verticale e obliqua.
+- ↙ **In basso a sinistra**: troviamo il menù per gestire le impostazioni grafiche:
+  - **skybox**: on/off e switch (possibilità di alternare tra skybox iniziale e una completamente bianca).
+  - **luce**: posizione, colore (modifica anche il colore della skybox), direzione.
+  - **ombre**: on/off rendering avanzato, FOV, width, height, far, bias, frustum on/off.
+- ↖ **In alto a sinistra**: link per la documentazione, comandi tastiera e selezione dell'oggetto da spostare.
+- ↗ **In alto a destra**: controller per muovere la camera e gli oggetti, in base alla selezione.
 
-W/S: camera avanti/indietro
-A/D: camera sinistra/destra
-Space/Shift: camera sopra/sotto
-1/3: inclina in alto/basso
-4/6: panoramica a sinistra/destra
-7/9: camera ruota a sinistra/destra
-Freccia Su/Giù: sposta oggetto avanti/indietro
-Freccia Sinistra/Destra: sposta oggetto sinistra/destra
-Q/E: sposta oggetto in alto/basso
-R: allinea la camera
-È possibile ruotare la camera nelle varie direzioni attraverso il tocco sul canvas tramite mouse o touch.
-🪑 Aggiungere un nuovo oggetto
-È possibile aggiungere un nuovo oggetto, da utilizzare poi nella scena, in due passaggi:
+---
 
-Inserisci nella cartella "data" una cartella dedicata all'oggetto, contenente un file mtl e un file obj (puoi anche inserire le texure nel caso ci fossero). I nomi dei file e della cartella dovranno essere identici.
-Modifica il file "utils.js", inserendo nella costante "objects" il nuovo oggetto:
+## 🎮 Comandi
 
-"{ name: 'NomeCartella', position: [z, x, y] }"
+Attraverso la tastiera o il controller è possibile spostarsi nella scena e spostare gli oggetti (solo se già presenti nella scena).
 
-A questo punto l'oggetto potrà essere aggiunto dal menù situato in basso a destra e potrà anche essere selezionato nel select per essere spostato.
+### Comandi Tastiera:
+- **W/S**: camera avanti/indietro
+- **A/D**: camera sinistra/destra
+- **Space/Shift**: camera sopra/sotto
+- **1/3**: inclina in alto/basso
+- **4/6**: panoramica a sinistra/destra
+- **7/9**: camera ruota a sinistra/destra
+- **Freccia Su/Giù**: sposta oggetto avanti/indietro
+- **Freccia Sinistra/Destra**: sposta oggetto sinistra/destra
+- **Q/E**: sposta oggetto in alto/basso
+- **R**: allinea la camera
 
-🚪 Cambiare stanza
-È possibile anche caricare una stanza diversa tramite i seguenti passaggi:
-Inserisci nella cartella "data" una cartella dedicata alla stanza, contenente un file mtl e un file obj (puoi anche inserire le texure nel caso ci fossero). I nomi dei file e della cartella dovranno essere identici.
-Modifica il file "main.js", sostituendo alla riga 11 la parola "stanzetta", con il nome della cartella che hai aggiunto:
+È possibile ruotare la camera nelle varie direzioni tramite mouse o touch sul canvas.
 
-Da così:
-"window["scene"] = new Scene("canvas", [createObj('stanzetta', [0, 0, 0])]);"
+---
 
-A così:
-"window["scene"] = new Scene("canvas", [createObj('nomeCartella', [0, 0, 0])]);"
+## 🪑 Aggiungere un nuovo oggetto
 
-🎡 Scelte progettuali
-Sono state utilizzate e implementate diverse funzionalità:
+È possibile aggiungere un nuovo oggetto alla scena seguendo questi passaggi:
 
-Vertex shader: ha il compito di trasformare i vertici del modello 3D dalle coordinate del modello allo spazio della scena, in modo che possano essere correttamente disegnati sullo schermo.
+1. Inserire nella cartella `data` una nuova cartella contenente un file `.mtl` e un file `.obj`. I nomi dei file e della cartella devono essere identici.
+2. Modificare il file `utils.js` inserendo il nuovo oggetto nella costante `objects`:
 
-Fragment shader: utilizzato per determinare il colore di ogni singolo pixel sullo schermo.
+   ```js
+   { name: 'NomeCartella', position: [z, x, y] }
+   ```
 
-Rendering di base: la scena disegnata supporta texture e colori, avendo una luce diffusa e speculare. L'illuminazione segue il modello di Phong, andando a definire una luce ambientale legata alla sorgente luminosa di base che va ad irradiare l'intera scena e una riflessione puntiforme data dalla combinazione di luce diffusa e speculare. Data la presenza di texture, l'algoritmo è stato adattato per il texture mapping.
+Una volta completato, l'oggetto potrà essere aggiunto dal menù e selezionato per essere spostato.
 
-Rendering avanzato: le ombre vengono generate tramite Shadow Mapping. La scena viene prima disegnata prima dal punto di vista della sorgente luminosa, registrando i valori di profondità sul depth buffer (senza renderizzazione) per poi definire i valori dello shadow buffer, poi dal punto di vista dell'osservatore (camera), utilizzando la shadowmap generata per capire se un punto è in ombra o meno.
-È possibile attivare questo tipo di render dal menu in basso a sinistra, cliccando sulla voce "On Shadow Map".
+### 🚪 Cambiare stanza
 
-Caricamento modelli: segue la formattazione di file wavefront .OBJ andando a caricarne le varie parti (facce) partendo dalle coordinate dei suoi vertici insieme ai materiali annessi (definiti in file .MTL linkati all'interno del documento .OBJ).
+Per cambiare stanza:
 
-Skybox: implementata tramite l'utilizzo di una cubemap, un tipo di texture tridimensionale. Ogni faccia ha un riferimento bidimensionale relativo ai pixel di ogni quadrato del cubo e una normale che, a secondo della direzione a cui punta, viene selezionata una delle 6 facce del cubo, andandone a campionare i pixel per poi produrre il colore. Poichè l'osservatore si trova all'interno della cubemap, è stata utilizzata l'inversa della matrice di proiezione di vista per ottenere la direzione in cui l'osservatore (la camera) sta guardando.
+1. Inserire nella cartella `data` una nuova cartella contenente un file `.mtl` e un file `.obj`. I nomi dei file e della cartella devono essere identici.
+2. Modificare il file `main.js` sostituendo "stanzetta" con il nome della nuova cartella nella riga 11:
 
-Context 2D: per definire il controller visualizzato internamente al canvas, si è utilizzato il context2D del canvas sovrapposto a quello di gioco.
+   ```js
+   window["scene"] = new Scene("canvas", [createObj('nomeCartella', [0, 0, 0])]);
+   ```
 
-Adattamento mobile: l'interfaccia è gestita secondo i display di un monitor classico per PC e di uno smartphone. I test inerenti all'adattamento mobile sono stati effettuati tramite gli strumenti di sviluppo di Google Chrome.
-Sono state anche utilizzate le funzioni WebGL provenienti dalle librerie spiegate durante il corso, come m4.js (per la gestione delle operazioni matriciali), dat.gui.js (per definire i menù per gli oggetti e le impostazioni delle luci e ombre) e webgl-utils.js (per la semplificazione del codice come ad esempio la creazione dei vari shader program utilizzati).
+---
 
-💥 Particolarità
-Quando viene spostato un oggetto in realtà viene cancellato dalla scena e viene aggiunto in una posizione diversa, in base alla direzione in cui è stato spostato in precedenza.
-Anche i colori della Skybox possono essere modificati dal menù in basso a sinistra, nella sezione colori, così avendo lo Skybox bianco, si può scegliere qualsiasi combinazione di colore.
-Una mia immagine (come da richiesta) si trova nel quadro, che è possibile aggiungere attraverso il menù in basso a destra.
-🔭 Lavori Futuri
-In futuro si potrebbe espendare e migliorare il gioco aggiungendo diverse cose, ad esempio:
+## 🎡 Scelte progettuali
 
-Oggetti e scene: potrebbe essere possibile aggiungere altri oggetti e altre stanze. Oltre a questo sarebbe bello implemetare la collissione, la gravità e la rotazione degli oggetti.
+Sono state implementate diverse funzionalità:
 
-Obiettivi: fare dei livelli sempre più difficili e in questi livelli copiare l'arredamento di un'altra stanza o ricrearlo in modo da fare entrare tutti gli oggetti in essa. Per fare questo sarebbe necessario aggiungere ulteriori stanze e oggetti, così da non rendere il gioco monotono.
+- **Vertex shader**: trasforma i vertici del modello 3D allo spazio della scena per il rendering corretto.
+- **Fragment shader**: determina il colore di ogni pixel sullo schermo.
+- **Rendering di base**: texture e colori con luce diffusa e speculare. Illumina con il modello di Phong e texture mapping.
+- **Rendering avanzato (Shadow Mapping)**: genera ombre tramite shadow maps. Può essere attivato dal menù in basso a sinistra.
+- **Caricamento modelli**: supporta file wavefront `.OBJ` con `.MTL` associati.
+- **Skybox**: implementata tramite cubemap.
+- **Context 2D**: utilizzato per disegnare il controller sovrapposto al canvas.
+- **Adattamento mobile**: interfaccia adattata per PC e smartphone, test tramite strumenti di sviluppo di Google Chrome.
 
-Caricamento e download di oggetti e scene: una cosa che avrebbe richiesto molto più tempo ma che mi sarebbe piaciuto implemetare è il caricamento online (tramite un server) di diversi oggetti e scene (file obj e mtl, incluse texture) e la possibilità di scaricarli in locale, magari per modificarli a proprio piacimento.
+Librerie utilizzate: `m4.js`, `dat.gui.js`, `webgl-utils.js`.
+
+### 💥 Particolarità
+
+- Gli oggetti vengono cancellati e aggiunti in una nuova posizione per essere spostati.
+- I colori della Skybox possono essere modificati dal menù in basso a sinistra.
+- Un'immagine dell'autore si trova nel quadro, aggiungibile dal menù in basso a destra.
+
+---
+
+## 🔭 Lavori Futuri
+
+In futuro si potrebbero aggiungere diverse funzionalità, ad esempio:
+
+- **Oggetti e scene**: aggiungere nuovi oggetti, stanze, collisioni, gravità e rotazioni.
+- **Obiettivi**: creare livelli sempre più difficili dove copiare l'arredamento di altre stanze.
+- **Caricamento e download di oggetti**: aggiungere il caricamento di oggetti e scene tramite un server e la possibilità di scaricarli per modificarli localmente.
