@@ -29,9 +29,7 @@ I file che compongono il progetto sono i seguenti:
   - **📄 camera.js**: classe che gestisce la camera e i suoi movimenti.
   - **📄 animated_camera.js**: classe che gestisce la camera che si muove automaticamente.
   - **📄 mesh_obj.js**: classe per la gestione degli oggetti da disegnare.
-- **📁 styles**: cartella che contiene file CSS riguardanti gli stili dei file HTML.
 - **📄 main.js**: main del programma.
-- **📄 relazione.html**: questo file.
 - **📄 utils.js**: file che contiene funzioni riguardanti gli oggetti, i menù e il controller (tastiera/mouse/touch).
 - **📄 webapp.html**: il file principale che contiene l'app.
 
